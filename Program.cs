@@ -1,4 +1,5 @@
 using HousingWebAPI.Data;
+using HousingWebAPI.Data.Repo;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors();
 
 builder.Services.AddDbContext<AppDataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddScoped<ICityRepository, CityRepository>();
 
 var app = builder.Build();
 

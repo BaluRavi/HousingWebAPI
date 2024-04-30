@@ -1,7 +1,6 @@
-﻿using HousingWebAPI.Data;
+﻿using HousingWebAPI.Data.Repo;
 using HousingWebAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HousingWebAPI.Controllers
 {
@@ -9,17 +8,16 @@ namespace HousingWebAPI.Controllers
     [ApiController]
     public class CityController : ControllerBase
     {
-        private readonly AppDataContext appDataContext;
-
-        public CityController(AppDataContext appDataContext)
+        private readonly ICityRepository repo;
+        public CityController(ICityRepository repo)
         {
-            this.appDataContext = appDataContext;
+            this.repo = repo;
         }
 
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var cities = await appDataContext.Cities.ToListAsync();
+            var cities = await repo.GetCitiesAsync();
 
             return Ok(cities);
         }
@@ -28,24 +26,24 @@ namespace HousingWebAPI.Controllers
 
         //api/City/add?cityname=Chennai
 
-        [HttpPost("add")]
-        [HttpPost("add/{cityName}")]
-        public async Task<IActionResult> AddCity(string cityName)
-        {
-            City city = new City();
-            city.Name = cityName;
+        //[HttpPost("add")]
+        //[HttpPost("add/{cityName}")]
+        //public async Task<IActionResult> AddCity(string cityName)
+        //{
+        //    City city = new City();
+        //    city.Name = cityName;
 
-            await appDataContext.Cities.AddAsync(city);
-            await appDataContext.SaveChangesAsync();
-            return Ok(city);
-        }
+        //    await appDataContext.Cities.AddAsync(city);
+        //    await appDataContext.SaveChangesAsync();
+        //    return Ok(city);
+        //}
 
         [HttpPost("post")]
         public async Task<IActionResult> AddCity(City city)
         {
-            await appDataContext.Cities.AddAsync(city);
-            await appDataContext.SaveChangesAsync();
-            return Ok(city);
+            repo.AddCity(city);
+            await repo.SaveCityAsnc();
+            return StatusCode(201);
         }
 
         //api/City/delete/1
@@ -53,18 +51,9 @@ namespace HousingWebAPI.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCity(int id)
         {
-            var city = await appDataContext.Cities.FirstOrDefaultAsync(c => c.Id == id);
-
-            if (city != null)
-            {
-                appDataContext.Cities.Remove(city);
-                await appDataContext.SaveChangesAsync();
-                return Ok(id);
-            }
-            else
-            {
-                return BadRequest("Cant able to delete city");
-            }
+            repo.DeleteCity(id);
+            await repo.SaveCityAsnc();
+            return Ok(id);
         }
     }
 }
