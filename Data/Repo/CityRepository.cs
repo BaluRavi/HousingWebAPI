@@ -1,4 +1,5 @@
-﻿using HousingWebAPI.Models;
+﻿using HousingWebAPI.Data.Interfaces;
+using HousingWebAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HousingWebAPI.Data.Repo
@@ -31,9 +32,10 @@ namespace HousingWebAPI.Data.Repo
             return await appDataContext.Cities.ToListAsync();
         }
 
-        public async Task<bool> SaveCityAsnc()
-        {
-            return await appDataContext.SaveChangesAsync() > 0;
-        }
+        //    public async Task<bool> SaveCityAsnc()
+        //    {
+        //        return await appDataContext.SaveChangesAsync() > 0;
+        //    }
+        //}
     }
 }

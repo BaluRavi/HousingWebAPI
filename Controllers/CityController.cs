@@ -1,4 +1,4 @@
-﻿using HousingWebAPI.Data.Repo;
+﻿using HousingWebAPI.Data.Interfaces;
 using HousingWebAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,16 +8,17 @@ namespace HousingWebAPI.Controllers
     [ApiController]
     public class CityController : ControllerBase
     {
-        private readonly ICityRepository repo;
-        public CityController(ICityRepository repo)
+        private readonly IUnitOfWork uow;
+
+        public CityController(IUnitOfWork uow)
         {
-            this.repo = repo;
+            this.uow = uow;
         }
 
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var cities = await repo.GetCitiesAsync();
+            var cities = await uow.CityRepository.GetCitiesAsync();
 
             return Ok(cities);
         }
@@ -41,8 +42,8 @@ namespace HousingWebAPI.Controllers
         [HttpPost("post")]
         public async Task<IActionResult> AddCity(City city)
         {
-            repo.AddCity(city);
-            await repo.SaveCityAsnc();
+            uow.CityRepository.AddCity(city);
+            await uow.SaveAsync();
             return StatusCode(201);
         }
 
@@ -51,8 +52,8 @@ namespace HousingWebAPI.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCity(int id)
         {
-            repo.DeleteCity(id);
-            await repo.SaveCityAsnc();
+            uow.CityRepository.DeleteCity(id);
+            await uow.SaveAsync();
             return Ok(id);
         }
     }
