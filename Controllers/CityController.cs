@@ -1,4 +1,5 @@
 ﻿using HousingWebAPI.Data.Interfaces;
+using HousingWebAPI.Dtos;
 using HousingWebAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,10 @@ namespace HousingWebAPI.Controllers
         {
             var cities = await uow.CityRepository.GetCitiesAsync();
 
-            return Ok(cities);
+            var citiesDTO = from c in cities
+                            select new CityDto { Id = c.Id, Name = c.Name };
+
+            return Ok(citiesDTO);
         }
 
         // To add new city in the database
@@ -40,8 +44,15 @@ namespace HousingWebAPI.Controllers
         //}
 
         [HttpPost("post")]
-        public async Task<IActionResult> AddCity(City city)
+        public async Task<IActionResult> AddCity(CityDto cityDto)
         {
+            var city = new City
+            {
+                Name = cityDto.Name,
+                LastUpdatedBy = 2,
+                LastUpdatedOn = DateTime.Now
+            };
+
             uow.CityRepository.AddCity(city);
             await uow.SaveAsync();
             return StatusCode(201);
