@@ -1,4 +1,5 @@
-﻿using HousingWebAPI.Data.Interfaces;
+﻿using AutoMapper;
+using HousingWebAPI.Data.Interfaces;
 using HousingWebAPI.Dtos;
 using HousingWebAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace HousingWebAPI.Controllers
     public class CityController : ControllerBase
     {
         private readonly IUnitOfWork uow;
+        private readonly IMapper mapper;
 
-        public CityController(IUnitOfWork uow)
+        public CityController(IUnitOfWork uow, IMapper mapper)
         {
             this.uow = uow;
+            this.mapper = mapper;
         }
 
         [HttpGet]
@@ -21,8 +24,10 @@ namespace HousingWebAPI.Controllers
         {
             var cities = await uow.CityRepository.GetCitiesAsync();
 
-            var citiesDTO = from c in cities
-                            select new CityDto { Id = c.Id, Name = c.Name };
+            var citiesDTO = mapper.Map<IEnumerable<CityDto>>(cities);
+
+            //var citiesDTO = from c in cities
+            //                select new CityDto { Id = c.Id, Name = c.Name };
 
             return Ok(citiesDTO);
         }
@@ -46,12 +51,17 @@ namespace HousingWebAPI.Controllers
         [HttpPost("post")]
         public async Task<IActionResult> AddCity(CityDto cityDto)
         {
-            var city = new City
-            {
-                Name = cityDto.Name,
-                LastUpdatedBy = 2,
-                LastUpdatedOn = DateTime.Now
-            };
+            //var city = new City
+            //{
+            //    Name = cityDto.Name,
+            //    LastUpdatedBy = 2,
+            //    LastUpdatedOn = DateTime.Now
+            //};
+
+            var city = mapper.Map<City>(cityDto);
+
+            city.LastUpdatedBy = 2;
+            city.LastUpdatedOn = DateTime.Now;
 
             uow.CityRepository.AddCity(city);
             await uow.SaveAsync();
