@@ -32,6 +32,11 @@ namespace HousingWebAPI.Data.Repo
             return await appDataContext.Cities.ToListAsync();
         }
 
+        public async Task<City> GetCityById(int cityId)
+        {
+            return await appDataContext.Cities.FindAsync(cityId);
+        }
+
         //    public async Task<bool> SaveCityAsnc()
         //    {
         //        return await appDataContext.SaveChangesAsync() > 0;

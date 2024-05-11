@@ -2,6 +2,7 @@
 using HousingWebAPI.Data.Interfaces;
 using HousingWebAPI.Dtos;
 using HousingWebAPI.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HousingWebAPI.Controllers
@@ -60,13 +61,50 @@ namespace HousingWebAPI.Controllers
 
             var city = mapper.Map<City>(cityDto);
 
-            city.LastUpdatedBy = 2;
+            city.LastUpdatedBy = "Balu";
             city.LastUpdatedOn = DateTime.Now;
 
             uow.CityRepository.AddCity(city);
             await uow.SaveAsync();
             return StatusCode(201);
         }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateCity(int id, CityDto cityDto)
+        {
+            var cityFromDB = await uow.CityRepository.GetCityById(id);
+
+            cityFromDB.LastUpdatedBy = "Balu";
+            cityFromDB.LastUpdatedOn = DateTime.Now;
+
+            mapper.Map(cityDto, cityFromDB);
+            await uow.SaveAsync();
+
+            return StatusCode(200);
+        }
+
+
+        [HttpPatch("update/{id}")]
+        public async Task<IActionResult> UpdateCityPatch(int id, JsonPatchDocument<City> cityToPatch)
+        {
+            try
+            {
+                var cityFromDB = await uow.CityRepository.GetCityById(id);
+
+                cityFromDB.LastUpdatedBy = "Balu";
+                cityFromDB.LastUpdatedOn = DateTime.Now;
+
+                cityToPatch.ApplyTo(cityFromDB, ModelState);
+
+                await uow.SaveAsync();
+                return StatusCode(200);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(400);
+            }
+        }
+
 
         //api/City/delete/1
 
