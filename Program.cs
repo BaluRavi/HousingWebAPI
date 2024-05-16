@@ -1,6 +1,8 @@
 using HousingWebAPI.Data;
 using HousingWebAPI.Data.Interfaces;
+using HousingWebAPI.Extensions;
 using HousingWebAPI.Helpers;
+using HousingWebAPI.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,12 +24,13 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//Configure the HTTP request pipeline.
+
+// inbuild exception middleware
+app.ConfigureExceptionHandler();
+
+// custom exception middleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors(m => m.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 

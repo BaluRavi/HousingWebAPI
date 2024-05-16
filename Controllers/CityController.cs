@@ -23,6 +23,8 @@ namespace HousingWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult> Get()
         {
+            throw new UnauthorizedAccessException();
+
             var cities = await uow.CityRepository.GetCitiesAsync();
 
             var citiesDTO = mapper.Map<IEnumerable<CityDto>>(cities);
@@ -52,6 +54,10 @@ namespace HousingWebAPI.Controllers
         [HttpPost("post")]
         public async Task<IActionResult> AddCity(CityDto cityDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             //var city = new City
             //{
             //    Name = cityDto.Name,
@@ -72,15 +78,30 @@ namespace HousingWebAPI.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateCity(int id, CityDto cityDto)
         {
+            //try
+            //{
+            if (id != cityDto.Id)
+                return BadRequest("Update not allowed");
+
             var cityFromDB = await uow.CityRepository.GetCityById(id);
+
+            if (cityFromDB == null)
+                return BadRequest("Update not allowed");
 
             cityFromDB.LastUpdatedBy = "Balu";
             cityFromDB.LastUpdatedOn = DateTime.Now;
+
+            throw new Exception("some error occured");
 
             mapper.Map(cityDto, cityFromDB);
             await uow.SaveAsync();
 
             return StatusCode(200);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(500, "some unknown error occured for testing balu");
+            //}
         }
 
 
